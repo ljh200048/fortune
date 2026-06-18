@@ -34,10 +34,10 @@ async function startServer() {
     return aiClient;
   }
 
-  // Robust retry with exponential backoff and model fallback to handle 503 / 429 errors from primary model
-  async function generateContentWithRetry(ai: GoogleGenAI, primaryModel: string, prompt: string, config: any, maxRetries = 3) {
+  // Robust retry with backoff and model fallback to handle 503 / 429 errors from primary model
+  async function generateContentWithRetry(ai: GoogleGenAI, primaryModel: string, prompt: string, config: any, maxRetries = 2) {
     let lastError: any = null;
-    const modelsToTry = [primaryModel, "gemini-3.1-flash-lite"];
+    const modelsToTry = [primaryModel, "gemini-flash-latest", "gemini-3.1-flash-lite"];
 
     for (const modelName of modelsToTry) {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -48,18 +48,20 @@ async function startServer() {
             contents: prompt,
             config: config
           });
+          console.log(`[Gemini Server API] Successfully generated content using model: ${modelName}`);
           return res;
         } catch (error: any) {
           lastError = error;
           console.error(`[Gemini Server API Error] Model ${modelName} attempt ${attempt} failed:`, error);
 
           if (attempt < maxRetries) {
-            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
-            console.log(`[Gemini Server API] Retrying in ${Math.round(delay)}ms...`);
+            const delay = 1000 + Math.random() * 500;
+            console.log(`[Gemini Server API] Retrying model ${modelName} in ${Math.round(delay)}ms...`);
             await new Promise((resolve) => setTimeout(resolve, delay));
           }
         }
       }
+      console.log(`[Gemini Server API] Model ${modelName} failed all attempts. Trying next fallback model...`);
     }
     throw lastError;
   }
