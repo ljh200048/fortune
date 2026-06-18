@@ -40,7 +40,11 @@ export interface SajuReport {
   balanceScores: LifeBalanceScores;
   mainReport: string; // Markdown formatted detailed healing report
   coreAdvice: string; // 1-sentence healing advice
-  createdAt: string; // ISO String
+  loveLuck?: string;  // 연애운
+  jobLuck?: string;   // 직업운
+  wealthLuck?: string;// 재물운
+  yearLuck?: string;  // 올해운
+  createdAt?: string; // ISO String
 }
 
 export interface Journal {

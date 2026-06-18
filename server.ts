@@ -121,7 +121,12 @@ async function startServer() {
    - **[1. 타고난 내면의 기운 (사주와 오행)]**: 주인공의 태어난 날 일주(${sajuReport.pillars.day.pillar})와 오행 분석 결과를 사유합니다. 오행 중 가장 풍부한 기운을 다루는 지혜와, 결핍되거나 부족한 기운을 내 삶에 채우는 실천적 조언을 포함해 주세요.
    - **[2. 감정의 흐름과 사주의 지혜 (심리 성찰)]**: 주인공이 오늘 가져온 감정인'${input.emotion}'이 사주 오행의 기운 배치와 어떻게 공명하고 있는지 설명하세요. (예: 물이 많아 감정이 가라앉았거나, 불이 부족해 피로를 느낀다거나 등 깊이 있고 감동적인 유기적 결합).
    - **[3. 선택한 영역('${input.areasToReflect.join(", ")}')에 대한 영적 조언 및 나 자신을 채우는 처방전]**: 주인공이 집중적으로 성찰하고 싶어 한 '${input.areasToReflect.join(", ")}' 영역에 맞게 삶의 방향성을 온화한 시선으로 다잡아 줍니다. 구체적인 일상 행동 처방(어떤 옷 색상, 행동, 생각의 습관)을 주면 더 신비롭고 현실적인 공감을 얻습니다.
-3. **Markdown**: 구조화와 멋진 레이아웃을 위해 적극적으로 볼드, 인용구(>), 단락 등을 활용해 Markdown을 정성스럽게 작성해야 합니다.
+3. **네 가지 성찰 영역 운세 작성**:
+   - **loveLuck (연애운)**: 관계와 마음의 연결, 앞으로 마주하게 될 타인과의 인연에 대해 사주팔자 기반으로 따스하게 조언해 주세요.
+   - **jobLuck (직업운)**: 일과 성취, 세상을 향해 내딛는 발걸음과 재능의 발현 방식에 대해 조언해 주세요.
+   - **wealthLuck (재물운)**: 삶의 도구로서의 물질적 안정과 풍요, 그리고 마땅히 다스려야 할 집착에 대해 조언해 주세요.
+   - **yearLuck (올해운)**: 올해 흐르는 큰 우주의 시기와 흐름 중, 이 생조와 억부의 상황 속에서 마주할 긍정적 조력자 및 마음가짐에 대해 조언해 주세요.
+4. **Markdown**: 구조화와 멋진 레이아웃을 위해 적극적으로 볼드, 인용구(>), 단락 등을 활용해 Markdown을 정성스럽게 작성해야 합니다.
 
 출력 데이터는 아래 JSON 스키마에 완전히 부합해야 합니다.
 `;
@@ -139,9 +144,25 @@ async function startServer() {
             coreAdvice: {
               type: Type.STRING,
               description: "A single, highly elegant, poetic healing sentence summarizing the core heart message for the user (within 50-80 chars)."
+            },
+            loveLuck: {
+              type: Type.STRING,
+              description: "A deep, healing paragraph in Korean regarding interpersonal connections and romance based on Saju."
+            },
+            jobLuck: {
+              type: Type.STRING,
+              description: "A deep, healing paragraph in Korean regarding work, talent, career, and personal mission based on Saju."
+            },
+            wealthLuck: {
+              type: Type.STRING,
+              description: "A deep, healing paragraph in Korean regarding abundance, financial stability, and positive management based on Saju."
+            },
+            yearLuck: {
+              type: Type.STRING,
+              description: "A deep, healing paragraph in Korean regarding the current annual vibe and general flow based on Saju."
             }
           },
-          required: ["mainReport", "coreAdvice"]
+          required: ["mainReport", "coreAdvice", "loveLuck", "jobLuck", "wealthLuck", "yearLuck"]
         }
       });
 
@@ -150,6 +171,10 @@ async function startServer() {
 
       sajuReport.mainReport = parsed.mainReport || "리포트를 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.";
       sajuReport.coreAdvice = parsed.coreAdvice || "때로는 비우는 것이 새로운 시작을 이끕니다. 오늘의 기운에 마음을 맡겨보세요.";
+      sajuReport.loveLuck = parsed.loveLuck || "타인과의 따뜻한 연결이 머지않아 당신에게 찾아올 것입니다. 집착을 내려놓고 잔잔한 시선으로 마주하세요.";
+      sajuReport.jobLuck = parsed.jobLuck || "자신의 본연의 재능에 성찰의 기운이 얹어집니다. 고집보다 성실함이 큰 성공을 부를 것입니다.";
+      sajuReport.wealthLuck = parsed.wealthLuck || "물질적 풍요는 스스로를 가다듬는 평정심에서 우러나옵니다. 급한 마음을 가라앉히면 자연레 재물이 모입니다.";
+      sajuReport.yearLuck = parsed.yearLuck || "올해는 성찰과 정리를 위한 훌륭한 해입니다. 보이지 않게 스스로를 튼튼하게 채우는 시기로 삼으세요.";
 
       res.json(sajuReport);
     } catch (error: any) {

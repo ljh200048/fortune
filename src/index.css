@@ -86,3 +86,70 @@
 .markdown-body li {
   margin-bottom: 0.25rem;
 }
+
+/* Print Media Styles for PDF / Print action */
+@media print {
+  /* Hide navbar, footer, buttons, scrollbars, and other interactive/unwanted elements */
+  nav, footer, button, a, textarea, #btn-back-to-form, .no-print, #personal-notes, iframe, script {
+    display: none !important;
+  }
+  
+  /* Reset background and text colors to be printer-friendly (white background, dark grey text) */
+  html, body, #full-app-root, main, #saju-result-container {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Select and expand printable container */
+  #printable-saju-report {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Force background colors of cells and progress bars to display properly or have explicit borders */
+  .rounded-2xl, .rounded-3xl {
+    background-color: #FAFAFA !important;
+    border: 1px solid #E5E7EB !important;
+    box-shadow: none !important;
+  }
+
+  /* Make sure every nested container prints as black text on white background */
+  #printable-saju-report div, 
+  #printable-saju-report span, 
+  #printable-saju-report p, 
+  #printable-saju-report h3, 
+  #printable-saju-report h4, 
+  #printable-saju-report h5, 
+  #printable-saju-report strong {
+    color: #111111 !important;
+    background-color: transparent !important;
+    border-color: #E5E7EB !important;
+  }
+
+  /* Keep titles clean and bold */
+  #printable-saju-report h3, 
+  #printable-saju-report h4, 
+  #printable-saju-report h5 {
+    color: #9C7D41 !important; /* Shaded gold for dark print contrast */
+    font-weight: bold !important;
+  }
+  
+  /* Markdown specific text coloring for white background */
+  .markdown-body p, 
+  .markdown-body ul, 
+  .markdown-body ol, 
+  .markdown-body li {
+    color: #111111 !important;
+  }
+}
