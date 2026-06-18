@@ -1,0 +1,6 @@
+{
+  "name": "나를 돌아보자",
+  "description": "사주와 자기성찰의 조화. 자신의 타고난 기운(오행)과 마음을 탐색하고 영혼의 성장 리포트를 남기는 힐링 성찰 공간입니다.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
