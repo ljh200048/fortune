@@ -13,7 +13,7 @@ import {
   PenTool,
   BookmarkCheck
 } from "lucide-react";
-import { db } from "../lib/firebase";
+import { db, handleFirestoreError, OperationType } from "../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { User } from "firebase/auth";
 
@@ -83,11 +83,13 @@ ${report.mainReport}
   };
 
   const handleSaveToJournal = async () => {
-    if (!user) {
+    let activeUser = user;
+    if (!activeUser) {
       // Prompt OAuth or sign in
       try {
         const loggedUser = await signInWithGoogle();
         if (!loggedUser) return;
+        activeUser = loggedUser;
       } catch (err) {
         setErrorMsg("기록장에 담기 위해 로그인이 필요합니다.");
         return;
@@ -99,7 +101,7 @@ ${report.mainReport}
     try {
       // Store to Firestore under standard "journals" collection
       await addDoc(collection(db, "journals"), {
-        userId: user ? user.uid : (await signInWithGoogle())?.uid,
+        userId: activeUser.uid,
         input,
         report,
         notes: personalNote.trim(),
@@ -113,6 +115,7 @@ ${report.mainReport}
     } catch (err: any) {
       console.error("Firestore Save Error:", err);
       setErrorMsg("성찰 기록 저상에 실패했습니다. 규칙 설정 또는 통신 에러 가능성이 있습니다.");
+      handleFirestoreError(err, OperationType.CREATE, "journals");
     } finally {
       setSaving(false);
     }

@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Shared global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Journals collection rules
+    match /journals/{journalId} {
+      // allow create details
+      allow create: if isSignedIn()
+        && incoming().userId == request.auth.uid
+        && incoming().input is map
+        && incoming().report is map
+        && incoming().notes is string
+        && incoming().notes.size() <= 1000
+        && incoming().createdAt == request.time;
+
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      // allow update of notes only
+      allow update: if isSignedIn()
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().notes is string
+        && incoming().notes.size() <= 1000
+        && incoming().diff(existing()).affectedKeys().hasOnly(['notes']);
+
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+  }
+}

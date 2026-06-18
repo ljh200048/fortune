@@ -34,6 +34,36 @@ async function startServer() {
     return aiClient;
   }
 
+  // Robust retry with exponential backoff and model fallback to handle 503 / 429 errors from primary model
+  async function generateContentWithRetry(ai: GoogleGenAI, primaryModel: string, prompt: string, config: any, maxRetries = 3) {
+    let lastError: any = null;
+    const modelsToTry = [primaryModel, "gemini-3.1-flash-lite"];
+
+    for (const modelName of modelsToTry) {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`[Gemini Server API] Attempting generateContent with model: ${modelName}, attempt ${attempt}`);
+          const res = await ai.models.generateContent({
+            model: modelName,
+            contents: prompt,
+            config: config
+          });
+          return res;
+        } catch (error: any) {
+          lastError = error;
+          console.error(`[Gemini Server API Error] Model ${modelName} attempt ${attempt} failed:`, error);
+
+          if (attempt < maxRetries) {
+            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+            console.log(`[Gemini Server API] Retrying in ${Math.round(delay)}ms...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
+      }
+    }
+    throw lastError;
+  }
+
   // API endpoint to handle Saju calculation & Gemini Enrichment
   app.post("/api/saju", async (req, res) => {
     try {
@@ -97,25 +127,21 @@ async function startServer() {
 `;
 
       const ai = getGeminiClient();
-      const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              mainReport: {
-                type: Type.STRING,
-                description: "The beautifully written Korean Markdown report blending Saju philosophy, psychological reflection, emotional comforting, and personalized guidance."
-              },
-              coreAdvice: {
-                type: Type.STRING,
-                description: "A single, highly elegant, poetic healing sentence summarizing the core heart message for the user (within 50-80 chars)."
-              }
+      const response = await generateContentWithRetry(ai, "gemini-3.5-flash", prompt, {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            mainReport: {
+              type: Type.STRING,
+              description: "The beautifully written Korean Markdown report blending Saju philosophy, psychological reflection, emotional comforting, and personalized guidance."
             },
-            required: ["mainReport", "coreAdvice"]
-          }
+            coreAdvice: {
+              type: Type.STRING,
+              description: "A single, highly elegant, poetic healing sentence summarizing the core heart message for the user (within 50-80 chars)."
+            }
+          },
+          required: ["mainReport", "coreAdvice"]
         }
       });
 

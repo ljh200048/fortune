@@ -49,7 +49,14 @@ export default function App() {
       });
 
       if (!response.ok) {
-        throw new Error("우주의 흐름을 가져오는 도중 연결 지연이 발생했습니다. 다시 한 번 제출해 주세요.");
+        let serverErrorMsg = "";
+        try {
+          const errData = await response.json();
+          serverErrorMsg = errData.error || errData.message;
+        } catch (e) {
+          // Ignore parsing error
+        }
+        throw new Error(serverErrorMsg || "우주의 흐름을 가져오는 도중 연결 지연이 발생했습니다. 다시 한 번 제출해 주세요.");
       }
 
       const data: SajuReport = await response.json();

@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "SajuInput": {
+      "title": "SajuInput",
+      "description": "The Saju request form input values",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "birthDate": { "type": "string" },
+        "birthTime": { "type": "string" },
+        "isSolar": { "type": "string" },
+        "emotion": { "type": "string" },
+        "areasToReflect": { "type": "array"}
+      },
+      "required": ["name", "birthDate", "isSolar", "emotion", "areasToReflect"]
+    },
+    "SajuPillar": {
+      "title": "SajuPillar",
+      "description": "A single pillar of Saju analysis",
+      "type": "object",
+      "properties": {
+        "pillar": { "type": "string" },
+        "element": { "type": "string" },
+        "meaning": { "type": "string" }
+      },
+      "required": ["pillar", "element", "meaning"]
+    },
+    "SajuReport": {
+      "title": "SajuReport",
+      "description": "The Saju report output details",
+      "type": "object",
+      "properties": {
+        "pillars": { "type": "object" },
+        "fiveElements": { "type": "object" },
+        "balanceScores": { "type": "object" },
+        "mainReport": { "type": "string" },
+        "coreAdvice": { "type": "string" }
+      },
+      "required": ["pillars", "fiveElements", "balanceScores", "mainReport", "coreAdvice"]
+    },
+    "Journal": {
+      "title": "Journal",
+      "description": "A reflection journal document",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner userId" },
+        "input": { "$ref": "SajuInput" },
+        "report": { "$ref": "SajuReport" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "object" }
+      },
+      "required": ["userId", "input", "report", "createdAt"]
+    }
+  },
+  "firestore": {
+    "journals/{journalId}": {
+      "schema": "Journal",
+      "description": "Individual saju reflection journals per user"
+    }
+  }
+}

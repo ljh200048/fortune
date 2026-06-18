@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { User } from "firebase/auth";
 import { Journal } from "../types";
-import { db } from "../lib/firebase";
+import { db, handleFirestoreError, OperationType } from "../lib/firebase";
 import { 
   collection, 
   getDocs, 
@@ -65,6 +65,7 @@ export default function JournalList({ user, onSelectResult, refreshTrigger }: Jo
         setJournals(items);
       } catch (error) {
         console.error("기록장에서 사주 성찰 이력을 가져오는 중 에러 발생:", error);
+        handleFirestoreError(error, OperationType.LIST, "journals");
       } finally {
         setLoading(false);
       }
@@ -88,6 +89,7 @@ export default function JournalList({ user, onSelectResult, refreshTrigger }: Jo
     } catch (error) {
       console.error("기록 삭제 오류:", error);
       alert("성찰 기록 삭제 중 오류가 발생했습니다.");
+      handleFirestoreError(error, OperationType.DELETE, `journals/${id}`);
     }
   };
 
@@ -116,6 +118,7 @@ export default function JournalList({ user, onSelectResult, refreshTrigger }: Jo
     } catch (error) {
       console.error("기록 수정 오류:", error);
       alert("메모 수정 중 오류가 발생했습니다.");
+      handleFirestoreError(error, OperationType.UPDATE, `journals/${journal.id}`);
     } finally {
       setUpdating(false);
     }
